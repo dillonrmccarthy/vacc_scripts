@@ -13,7 +13,7 @@ if [ $HOSTNAME = "dg-user1.cluster" ];then
 elif [ $HOSTNAME = "dg-user2.cluster" ];then
 	:
 else
-	echo "submit from DeepGreen cluster!"
+	echo "Submit from DeepGreen cluster!"
 fi
 
 while true; do
