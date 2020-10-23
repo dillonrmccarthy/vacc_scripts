@@ -7,6 +7,15 @@ export SCHRODINGER19_1=/users/d/r/drmccart/Applications/schrodinger2019-1
 export SCHRODINGER19_2=/users/d/r/drmccart/Applications/schrodinger2019-2
 export LD_LIBRARY_PATH='/users/d/r/drmccart/Applications/schrodinger2019-2/desmond-v5.8/lib/Linux-x86_64':'/users/d/r/drmccart/Applications/schrodinger2019-2/mmshare-v4.6/lib/Linux-x86_64':'/users/d/r/drmccart/Applications/schrodinger2019-1/desmond-v5.7/lib/Linux-x86_64':'/users/d/r/drmccart/Applications/schrodinger2019-1/mmshare-v4.5/lib/Linux-x86_64:':$LD_LIBRARY_PATH
 
+#if [[ $HOSTNAME == "dg-user1.cluster" ]] | [[ $hn == "dg-user2.cluster" ]];then
+if [ $HOSTNAME = "dg-user1.cluster" ];then
+	:
+elif [ $HOSTNAME = "dg-user2.cluster" ];then
+	:
+else
+	echo "submit from DeepGreen cluster!"
+fi
+
 while true; do
 	clear && clear
 	jobname="$(basename *msj .msj)"
