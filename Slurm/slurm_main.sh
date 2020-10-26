@@ -169,6 +169,6 @@ if [[ $reservation_value == "y" ]];then
 	sbatch --job-name=$name --reservation=$reservation_name $DIR"/slurm_md.sh"
 else
 	#echo "sbatch --job-name=$name --time=$walltime $DIR"/slurm_md.sh""
-	sbatch -w dg-gpunode04 --job-name=$name $DIR"/slurm_md.sh"
-	#sbatch --job-name=$name $DIR"/slurm_md.sh"
+	#sbatch -w dg-gpunode07 --job-name=$name $DIR"/slurm_md.sh"
+	sbatch --job-name=$name $DIR"/slurm_md.sh"
 fi
