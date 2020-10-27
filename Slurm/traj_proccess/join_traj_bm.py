@@ -7,6 +7,8 @@ import inspect as isp
 
 
 #====================================================================================================
+# The Script can auto dehydrate and combine the outputs of multiple desmond trajectories into a dcd and dms. Does not wrap/unwrap. For submission on bluemoon (NOT DEEPGREEN) using sbatch.
+#====================================================================================================
 class Dirinfo:
     def __init__(self,incms): #basically initializes the list of all jobs and continued jobs
         incms = [incms]
@@ -56,11 +58,12 @@ class Dirinfo:
 
             mol addfile $init_traj type dtr first 1 last -1 step $step waitfor all ; #add first traj ignoring the first frame (as is indentical to in-cms)
 
-            set dcd_list %s ; #set to output of tcl lists, load the rest of .dtr's normally
-            foreach dcd_in $dcd_list {
-                mol addfile $dcd_in type dcd first 0 last -1 step $step waitfor all }
+            set dtr_list %s ; #set to output of tcl lists, load the rest of .dtr's normally
+            foreach dtr_in $dtr_list {
+                mol addfile $dtr_in type dtr first 0 last -1 step $step waitfor all }
 
             animate write dcd $dehy_traj_saved beg 1 end -1 skip 0 waitfor all sel $sel top ; #write the final combined trajectory!
+            exit
             ''' % (wtc[0], wtc[1]))
 
         elif not self._flag: #if there are not, write the other version of the tcl script.
@@ -73,6 +76,7 @@ class Dirinfo:
 
             mol addfile $init_traj type dtr first 1 last -1 step $step waitfor all ; #add first traj ignoring the first frame (as is indentical to in-cms)
             animate write dcd $dehy_traj_saved beg 1 end -1 skip 0 waitfor all sel $sel top ; #write the final combined trajectory!
+            exit
             ''' % wtc)
 
         else:
@@ -91,7 +95,6 @@ with open('dehy_and_comb.tcl','w') as fh:
     fh.close()
 
 #====================================================================================================
-
 sbatch_command =('''#!/bin/bash
 #SBATCH --partition=short
 #SBATCH --nodes=1
@@ -118,3 +121,9 @@ $VMD/vmd -dispdev text -e dehy_and_comb.tcl
 with open('submit.sh','w') as fh2:
     fh2.write(sbatch_command)
     fh2.close()
+
+subprocess.run(["chmod","u+x", "submit.sh"])
+subprocess.run(["sbatch", "submit.sh"])
+
+exit(0)
+#====================================================================================================
