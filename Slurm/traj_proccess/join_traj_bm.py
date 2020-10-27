@@ -12,7 +12,6 @@ import inspect as isp
 class Dirinfo:
     def __init__(self,incms): #basically initializes the list of all jobs and continued jobs
         incms = [incms]
-        #incms = [f for f in listdir(getcwd()) if f[-7:] == '-in.cms']
         self._clickme_first = [("./"+incms[0][:-7]+'_trj/clickme.dtr')]
         cont_folders = [ff for ff in listdir(getcwd()) if '_cont_' in ff]
         if len(cont_folders) > 0: #make sure there are continuation folders in the first place
@@ -96,12 +95,12 @@ with open('dehy_and_comb.tcl','w') as fh:
 
 #====================================================================================================
 sbatch_command =('''#!/bin/bash
-#SBATCH --partition=short
+#SBATCH --partition=bigmem
 #SBATCH --nodes=1
 #SBATCH --ntasks=2
 #SBATCH --cpus-per-task=1
 #SBATCH --time=3:00
-#SBATCH --mem=1G
+#SBATCH --mem=200G
 #SBATCH --job-name=traj_dehydration
 #SBATCH --output=%x_%j.out
 # Change to the directory where you submitted this script
