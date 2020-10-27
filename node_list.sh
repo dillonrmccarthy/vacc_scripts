@@ -1,4 +1,5 @@
 #!/bin/bash
+#lets you know what nodes are busy
 
 while true; do
 	clear && clear
