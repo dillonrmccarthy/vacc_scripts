@@ -4,6 +4,7 @@ from os import listdir, getcwd
 import subprocess
 import sys
 import inspect as isp
+import get_dirsize
 
 
 #====================================================================================================
@@ -24,6 +25,17 @@ class Dirinfo:
         else:
             self._flag = False
         self._dirpath = os.getcwd()+'/'
+
+    def getdirsize(self):
+        size = subprocess.check_output(['du','-sh', self._dirpath]).split()[0].decode('utf-8')
+        if size[-1] != "G":
+            size = "150G"
+            print("default size used")
+        size = str(int(size[:-1])+10)+"G"
+        node = "bluemoon"
+        if int(size[0:-1]) > 50:
+            node = "bigmem"
+        return node, size
 
     def write_tcl_clickmes(self): #clickmes is a pre-processed tcl list which has the correct elements
         if self._flag:
@@ -80,29 +92,34 @@ class Dirinfo:
 
         else:
             exit(1)
-        _file_code = [isp.cleandoc(dehydrate_code_1), '', isp.cleandoc(dehydrate_code_2)]
-        return '\n'.join(_file_code)
+        _file_code = '\n'.join([isp.cleandoc(dehydrate_code_1), '', isp.cleandoc(dehydrate_code_2)])
+        return _file_code
 
 #====================================================================================================
 #now making the actual tcl file for sbatch submission
 wombat=Dirinfo(sys.argv[1]) #this should be the ORIGINAL in-cms file
 dtrs = wombat.write_tcl_clickmes()
 filetxt = wombat.write_tcl_script(dtrs)
+autoQ = wombat.getdirsize() #ensures enough memory, and correct queue
 
 with open('dehy_and_comb.tcl','w') as fh:
     fh.write(filetxt)
     fh.close()
 
 #====================================================================================================
-sbatch_command =('''#!/bin/bash
-#SBATCH --partition=bigmem
+sbatch1 =('''#!/bin/bash
+#SBATCH --partition=%s
 #SBATCH --nodes=1
-#SBATCH --ntasks=2
+#SBATCH --ntasks=4
 #SBATCH --cpus-per-task=1
-#SBATCH --time=3:00
-#SBATCH --mem=200G
+#SBATCH --ntasks-per-socket=4
+#SBATCH --time=30:00:00
+#SBATCH --mem=%s
+#SBATCH --time=30:00:00
 #SBATCH --job-name=traj_dehydration
-#SBATCH --output=%x_%j.out
+''' % (autoQ[0],autoQ[1]))
+
+sbatch2 = ('''#SBATCH --output=%x_%j.out
 # Change to the directory where you submitted this script
 cd ${SLURM_SUBMIT_DIR}
 #
@@ -117,8 +134,10 @@ export VMD=/users/d/r/drmccart/Applications/vmd-1.9.3
 $VMD/vmd -dispdev text -e dehy_and_comb.tcl
 ''')
 
+fullsh = "\n".join([isp.cleandoc(sbatch1), isp.cleandoc(sbatch2)])
+
 with open('submit.sh','w') as fh2:
-    fh2.write(sbatch_command)
+    fh2.write(fullsh)
     fh2.close()
 
 subprocess.run(["chmod","u+x", "submit.sh"])
