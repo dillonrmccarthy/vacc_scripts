@@ -13,7 +13,9 @@ import get_dirsize
 class Dirinfo:
     def __init__(self,incms): #basically initializes the list of all jobs and continued jobs
         incms = [incms]
-        self._clickme_first = [("./"+incms[0][:-7]+'_trj/clickme.dtr')]
+        init_traj = [fff for fff in listdir(getcwd()) if '_trj' in fff] #grabs the name of the traj
+        #self._clickme_first = [("./"+incms[0][:-7]+'_trj/clickme.dtr')] #removed because trj is diff from incms
+        self._clickme_first = [("./"+init_traj[0]+'/clickme.dtr')]
         cont_folders = [ff for ff in listdir(getcwd()) if '_cont_' in ff]
         if len(cont_folders) > 0: #make sure there are continuation folders in the first place
             self._flag = True
