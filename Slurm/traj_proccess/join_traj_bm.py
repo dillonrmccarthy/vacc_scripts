@@ -9,6 +9,7 @@ import get_dirsize
 
 #====================================================================================================
 # The Script can auto dehydrate and combine the outputs of multiple desmond trajectories into a dcd and dms. Does not wrap/unwrap. For submission on bluemoon (NOT DEEPGREEN) using sbatch.
+# Must use the -in.cms file as the argv
 #====================================================================================================
 class Dirinfo:
     def __init__(self,incms): #basically initializes the list of all jobs and continued jobs
