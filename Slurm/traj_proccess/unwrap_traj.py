@@ -16,6 +16,9 @@ class Dirinfo:
         filepath = os.getcwd()
         self.dms = [filepath+'/'+fff for fff in listdir(getcwd()) if '_dehydrated.dms' in fff]
         self.dcd = [filepath+'/'+fff for fff in listdir(getcwd()) if '_dehydrated.dcd' in fff]
+        if not self.dms or self.dcd:
+            self.dms = [filepath+'/'+fff for fff in listdir(getcwd()) if '_merged.dms' in fff]
+            self.dcd = [filepath+'/'+fff for fff in listdir(getcwd()) if '_merged.dcd' in fff]
         if len(self.dms) != 1 or len(self.dcd) !=1: print("\n__FAILED__\nNo Trajectory\n"); exit()
         self.name = self.dms[0].split('/')[-1].split('_dehydrated')[0]
         size = subprocess.check_output(['du','-sh', self.dms[0]]).split()[0].decode('utf-8')
