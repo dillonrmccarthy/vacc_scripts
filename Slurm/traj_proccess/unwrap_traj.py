@@ -16,17 +16,22 @@ class Dirinfo:
         filepath = os.getcwd()
         self.dms = [filepath+'/'+fff for fff in listdir(getcwd()) if '_dehydrated.dms' in fff]
         self.dcd = [filepath+'/'+fff for fff in listdir(getcwd()) if '_dehydrated.dcd' in fff]
-        if not self.dms or self.dcd:
+        if (self.dms and self.dcd):
+            self.name = self.dms[0].split('/')[-1].split('_dehydrated')[0]
+        if not (self.dms or self.dcd):
             self.dms = [filepath+'/'+fff for fff in listdir(getcwd()) if '_merged.dms' in fff]
             self.dcd = [filepath+'/'+fff for fff in listdir(getcwd()) if '_merged.dcd' in fff]
+            self.name = self.dms[0].split('/')[-1].split('_merged')[0]
         if len(self.dms) != 1 or len(self.dcd) !=1: print("\n__FAILED__\nNo Trajectory\n"); exit()
-        self.name = self.dms[0].split('/')[-1].split('_dehydrated')[0]
         size = subprocess.check_output(['du','-sh', self.dms[0]]).split()[0].decode('utf-8')
         if size[-1] != "G":
             size = "25G"
         else:
             size = str(int(size[:-1])+10)+"G"
-        self.node = "bluemoon"
+        #self.node = "bluemoon"
+	#self.time = "30:00:00"
+        self.node = "short"
+        self.time = "3:00:00"
         if int(size[0:-1]) > 50:
             self.node = "bigmem"
         self.size = size
@@ -67,9 +72,9 @@ wombat=Dirinfo() #script needs to be launched from the directory with the dehydr
 filetxt = wombat.write_tcl_script()
 
 
-#with open('unwrap.tcl','w') as fh:
-#    fh.write(filetxt)
-#    fh.close()
+with open('unwrap.tcl','w') as fh:
+    fh.write(filetxt)
+    fh.close()
 
 
 #====================================================================================================
@@ -79,11 +84,10 @@ sbatch1 =('''#!/bin/bash
 #SBATCH --ntasks=4
 #SBATCH --cpus-per-task=1
 #SBATCH --ntasks-per-socket=4
-#SBATCH --time=30:00:00
+#SBATCH --time=%s
 #SBATCH --mem=%s
-#SBATCH --time=30:00:00
 #SBATCH --job-name=traj_dehydration
-''' % (wombat.node,wombat.size))
+''' % (wombat.node,wombat.time,wombat.size))
 
 sbatch2 = ('''#SBATCH --output=%x_%j.out
 # Change to the directory where you submitted this script
@@ -106,8 +110,9 @@ with open('submit_wrap.sh','w') as fh2:
     fh2.write(fullsh)
     fh2.close()
 
-#subprocess.run(["chmod","u+x", "submit_wrap.sh"])
-#subprocess.run(["sbatch", "submit_wrap.sh"])
+subprocess.run(["chmod","u+x", "submit_wrap.sh"])
+subprocess.run(["sbatch", "submit_wrap.sh"])
 
 exit(0)
 #====================================================================================================
+
