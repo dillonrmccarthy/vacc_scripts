@@ -5,6 +5,7 @@ import subprocess
 import sys
 import inspect as isp
 import get_dirsize
+import math
 
 input("THIS IS CURRENTLY SET TO DEHYDRAYE CHCl3, would you like to continue? (press enter to coninue)")
 
@@ -36,7 +37,7 @@ class Dirinfo:
         if size[-1] != "G":
             size = "150G"
             print("default size used")
-        size = str(int(size[:-1])+10)+"G"
+        size = str(math.ceil(float(size[:-1]))+10)+"G"
         node = "bluemoon"
         if int(size[0:-1]) > 50:
             node = "bigmem"
