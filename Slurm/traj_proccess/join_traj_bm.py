@@ -6,6 +6,8 @@ import sys
 import inspect as isp
 import get_dirsize
 
+input("THIS IS CURRENTLY SET TO DEHYDRAYE CHCl3, would you like to continue? (press enter to coninue)")
+
 
 #====================================================================================================
 # The Script can auto dehydrate and combine the outputs of multiple desmond trajectories into a dcd and dms. Does not wrap/unwrap. For submission on bluemoon (NOT DEEPGREEN) using sbatch.
@@ -67,7 +69,8 @@ class Dirinfo:
             dehydrate_code_2 = ('''
             set init_traj %s
             mol new $in_cmsfile
-            set sel [atomselect top "not resname SPC"]
+            #set sel [atomselect top "not resname SPC"]
+            set sel [atomselect top "not chain X"]
             animate write dms $dehy_initstruc_saved beg 0 end 0 skip 0 waitfor all sel $sel top ; #writes dms intial
 
             mol addfile $init_traj type dtr first 1 last -1 step $step waitfor all ; #add first traj ignoring the first frame (as is indentical to in-cms)
@@ -85,7 +88,8 @@ class Dirinfo:
             set init_traj %s
             mol new $in_cmsfile
 
-            set sel [atomselect top "not resname SPC"]
+            #set sel [atomselect top "not resname SPC"]
+            set sel [atomselect top "not chain X"]
             animate write dms $dehy_initstruc_saved beg 0 end 0 skip 0 waitfor all sel $sel top ; #writes dms intial
 
             mol addfile $init_traj type dtr first 1 last -1 step $step waitfor all ; #add first traj ignoring the first frame (as is indentical to in-cms)
