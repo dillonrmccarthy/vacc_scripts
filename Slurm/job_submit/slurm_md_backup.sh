@@ -34,9 +34,9 @@ $DIR/job_saver.sh & #for on/off control see job_saver.sh script
 #Molecular Dynamics...
 if [[ $meta_or_md == 1 ]]; then
 	if [[ $EXTENDSIMULATION == 1 ]]; then
-		env SCHRODINGER_CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES $SCHRODINGER/desmond -JOBNAME $name -HOST $host -gpu -restore $cpt -in $cms -cfg mdsim.last_time=$newtime -TMPDIR $tmpdir -ATTACHED -WAIT -LOCAL
+		env SCHRODINGER_CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES $SCHRODINGER/desmond -JOBNAME $name -HOST $host -gpu -restore $cpt -in $cms -cfg mdsim.last_time=$newtime -TMPDIR $tmpdir -ATTACHED -WAIT
 	else
-		env SCHRODINGER_CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES $SCHRODINGER/utilities/multisim -JOBNAME $name -HOST $host -maxjob 1 -cpu 1 -m $msj -c $cfg -description 'Molecular Dynamics' $cms -mode umbrella -set stage[1].set_family.md.jlaunch_opt=["-gpu"] -o $name-out.cms -TMPDIR $tmpdir -ATTACHED -WAIT -LOCAL
+		env SCHRODINGER_CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES $SCHRODINGER/utilities/multisim -JOBNAME $name -HOST $host -maxjob 1 -cpu 1 -m $msj -c $cfg -description 'Molecular Dynamics' $cms -mode umbrella -set stage[1].set_family.md.jlaunch_opt=["-gpu"] -o $name-out.cms -TMPDIR $tmpdir -ATTACHED -WAIT
 	fi
 
 #Metadynamics...

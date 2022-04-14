@@ -162,13 +162,36 @@ if [[ $(ls ./*cpt 2> /dev/null | wc -l) -eq 1 ]];then
 	export EXTENDSIMULATION=1
 fi
 
+echo " "
+echo -n "Would you like to exclude a specific node or nodes? (ie dg-gpunode03?) (y/N): "
+read spec_node
+RESET='\e[0m'
+BL_IT='\033[3;36m'
+BL_IT_WBG='\033[3;47;36m'
+BL_IT_B='\033[1;31;36m'
+
+if [[ "$spec_node" == "y" ]]; then
+	export specific_node=1	
+	echo -e "${BL_IT}(please type and include square brackets!) Example for a single node, enter ${BL_IT_B}[01]${RESET}${BL_IT}. For multiple nodes, enter ${BL_IT_B}[00,02,04-06]${RESET}"
+	echo " "
+	echo -n -e "${BL_IT}Please enter selection now: ${RESET}"
+	read nodenum
+	export node="dg-gpunode$nodenum"
+	node="dg-gpunode$nodenum"
+fi
+echo " " 
+
 export DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if [[ $reservation_value == "y" ]];then
 	#echo "sbatch --job-name=$name --time=$walltime --reservation=$reservation_name $DIR"/slurm_md.sh""
 	sbatch --job-name=$name --reservation=$reservation_name $DIR"/slurm_md.sh"
+
+elif [[ $specific_node -eq 1 ]];then
+	#echo "sbatch --exclude=$node --job-name=$name $DIR"/slurm_md.sh""
+	echo -e "${BL_IT}excluding nodes with command --exclude=$node ${RESET}"
+	sbatch --exclude=$node --job-name=$name $DIR"/slurm_md.sh"
 else
-	#echo "sbatch --job-name=$name --time=$walltime $DIR"/slurm_md.sh""
-	#sbatch -w dg-gpunode04 --job-name=$name $DIR"/slurm_md.sh"
+	#echo "sbatch --job-name=$name --time=$walltime $DIR"/slurm_md.sh"
 	sbatch --job-name=$name $DIR"/slurm_md.sh"
 fi

@@ -1,3 +1,7 @@
+#DO NOT EVER USE THIS SCRIPT
+#unwrapping is too inconsistent and should be done on a case-by-case basis
+
+
 #!/usr/bin/python3
 import os
 from os import listdir, getcwd
