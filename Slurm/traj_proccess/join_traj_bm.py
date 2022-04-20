@@ -7,8 +7,27 @@ import inspect as isp
 import get_dirsize
 import math
 
-input("THIS IS CURRENTLY SET TO DEHYDRAYE CHCl3, would you like to continue? (press enter to coninue)")
+#input("THIS IS CURRENTLY SET TO DEHYDRAYE CHCl3, would you like to continue? (press enter to coninue)")
 
+while True:
+    sol_sele = input("press 1 to dehydrate CHCl3, press 2 to dehydrate water: ")
+    if sol_sele != "1" and sol_sele != "2":
+	    print("please select a solvent")
+	    continue
+    else:
+        if sol_sele == "1":
+            solvent_selection = "chain X" #chain name for chloroform
+        else:
+            solvent_selection = "resname SPC" #water resname
+        print("Currently dehydrating: "+solvent_selection)
+        break
+
+
+current_path = os.path.abspath('.')
+files = os.listdir(current_path)
+cms_orig = os.path.join(current_path,[fh for fh in files if fh[-4:] == ".cms" and not ("-in.cms" in fh or "-out.cms" in fh)][0])
+
+#xx = next(filter(lambda fh: fh[-4:] == ".cms" and not ("-in.cms" in fh or "-out.cms" in fh),files))
 
 #====================================================================================================
 # The Script can auto dehydrate and combine the outputs of multiple desmond trajectories into a dcd and dms. Does not wrap/unwrap. For submission on bluemoon (NOT DEEPGREEN) using sbatch.
@@ -70,8 +89,7 @@ class Dirinfo:
             dehydrate_code_2 = ('''
             set init_traj %s
             mol new $in_cmsfile
-            #set sel [atomselect top "not resname SPC"]
-            set sel [atomselect top "not chain X"]
+            set sel [atomselect top "not %s"]
             animate write dms $dehy_initstruc_saved beg 0 end 0 skip 0 waitfor all sel $sel top ; #writes dms intial
 
             mol addfile $init_traj type dtr first 1 last -1 step $step waitfor all ; #add first traj ignoring the first frame (as is indentical to in-cms)
@@ -82,21 +100,20 @@ class Dirinfo:
 
             animate write dcd $dehy_traj_saved beg 1 end -1 skip 0 waitfor all sel $sel top ; #write the final combined trajectory!
             exit
-            ''' % (wtc[0], wtc[1]))
+            ''' % (wtc[0], solvent_selection, wtc[1]))
 
         elif not self._flag: #if there are not, write the other version of the tcl script.
             dehydrate_code_2 = ('''
             set init_traj %s
             mol new $in_cmsfile
 
-            #set sel [atomselect top "not resname SPC"]
-            set sel [atomselect top "not chain X"]
+            set sel [atomselect top "not %s"]
             animate write dms $dehy_initstruc_saved beg 0 end 0 skip 0 waitfor all sel $sel top ; #writes dms intial
 
             mol addfile $init_traj type dtr first 1 last -1 step $step waitfor all ; #add first traj ignoring the first frame (as is indentical to in-cms)
             animate write dcd $dehy_traj_saved beg 1 end -1 skip 0 waitfor all sel $sel top ; #write the final combined trajectory!
             exit
-            ''' % wtc)
+            ''' % (wtc, solvent_selection))
 
         else:
             exit(1)
@@ -105,7 +122,7 @@ class Dirinfo:
 
 #====================================================================================================
 #now making the actual tcl file for sbatch submission
-wombat=Dirinfo(sys.argv[1]) #this should be the ORIGINAL in-cms file
+wombat=Dirinfo(cms_orig) #this should be the ORIGINAL in-cms file
 dtrs = wombat.write_tcl_clickmes()
 filetxt = wombat.write_tcl_script(dtrs)
 autoQ = wombat.getdirsize() #ensures enough memory, and correct queue
